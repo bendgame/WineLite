@@ -3,8 +3,6 @@ import os
 import pandas as pd
 import numpy as np
 import sqlite3 as sql
-import seaborn as sns
-import matplotlib.pyplot as plt
 import pickle
 
 
@@ -57,7 +55,7 @@ wine_df = pd.read_sql('Select * from wine_data', db.session.bind)
 def embed_useT():
     with tf.Graph().as_default():
         text_input = tf.compat.v1.placeholder(dtype = tf.string, shape=[None])
-        embed = tfhub.Module('C:/Users/bendgame/Downloads/1fb57c3ffe1a38479233ee9853ddd7a8ac8a8c47')
+        embed = tfhub.Module("https://tfhub.dev/google/universal-sentence-encoder/2")
         em_txt = embed(text_input)
         session = tf.compat.v1.train.MonitoredSession()
     return lambda x:session.run(em_txt, feed_dict={text_input:list(x)})
