@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import sqlite3 as sql
-import pickle
+# import pickle
 
 
 import sqlalchemy 
@@ -12,17 +12,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from flask import Flask, jsonify, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
-from sklearn.model_selection import train_test_split
-from sklearn import ensemble
-from sklearn.metrics import mean_absolute_error
-#from sklearn.externals import joblib
-from sklearn.metrics import roc_curve, auc
-import joblib
+# from sklearn.model_selection import train_test_split
+# from sklearn import ensemble
+# from sklearn.metrics import mean_absolute_error
+# from sklearn.externals import joblib
+# from sklearn.metrics import roc_curve, auc
+#import joblib
 import tensorflow as tf
 import tensorflow_hub as tfhub
 
 app = Flask(__name__, static_url_path='/static') 
-model = joblib.load("xbgWinePrice.pkl")
+#model = joblib.load("xbgWinePrice.pkl")
 
 
 
@@ -76,35 +76,6 @@ def FeatureEngineering():
        
     return render_template("FeatureEngineering.html")
 
-@app.route("/MRPrice", methods=['GET', 'POST'])
-def MRPrice():
-    """Return the homepage."""
-       
-    return render_template("MRPrice.html")
-
-@app.route("/MRRating", methods=['GET', 'POST'])
-def MRRating():
-    """Return the homepage."""
-       
-    return render_template("MRRating.html")
-
-@app.route("/RandomForestPrice", methods=['GET', 'POST'])
-def RandomForestPrice():
-    """Return the homepage."""
-       
-    return render_template("RandomForestPrice.html")
-
-@app.route("/RandomForestRating", methods=['GET', 'POST'])
-def RandomForestRating():
-    """Return the homepage."""
-       
-    return render_template("RandomForestRating.html")
-
-@app.route("/GBRnotebook", methods=['GET', 'POST'])
-def GBRnotebook():
-    """Return the homepage."""
-       
-    return render_template("GBRnotebook.html")
 
 @app.route("/RecommendationsNotebook", methods=['GET', 'POST'])
 def RecommendationsNotebook():
@@ -112,35 +83,10 @@ def RecommendationsNotebook():
        
     return render_template("RecommendationsNotebook.html")
 
-def prediction(rating, country, variety, color):
-
-    stmnt1 = 'Select * from wine_data'
-    df = pd.read_sql(stmnt1, db.session.bind)
-
-    dfco = df.loc[(df.country == country)][:1]
-    dfv = df.loc[(df.variety == variety)][:1]
-    dfc = df.loc[(df.color == color)][:1]
-  
-    a = list(dfco['countryID'])
-    b = list(dfv['varietyID'])
-    c = list(dfc['colorID'])   
-
-    dft = pd.DataFrame({"rating":rating,
-                        "countryID":a,
-                        "varietyID":b,
-                        "colorID":c,})
-    
-    
-    return model.predict(dft).round()
 
 def recommend_engine(query, color, embedding_table = result):
 
     wine_df = pd.read_sql('Select * from wine_data', db.session.bind)
-    # Embed user query
-    # with tf.Session(graph = g) as session:
-    #     session.run([tf.global_variables_initializer(), tf.tables_initializer()])
-    #     embedding = session.run(embed([query]))
-
     embedding = embed_fn([query])
 
     # Calculate similarity with all reviews
@@ -169,23 +115,6 @@ def recommend_engine(query, color, embedding_table = result):
     #returns dataframe
     return recommendations.head(3).T   
 
-
-
-@app.route("/result", methods=['POST'])
-def predict():
-        if request.method == 'POST':
-            to_predict_list = request.form.to_dict()
-            #to_predict_list=list(to_predict_list.values())
-            country = to_predict_list['country']
-            color = to_predict_list['color']
-            variety = to_predict_list['variety']
-            rating = to_predict_list['rating']
-        
-            result = prediction(rating,country,variety,color)
-            re = list(result)
-            #prd = {"price":re}
-             
-        return render_template("prediction.html", predicted_price = re[0] )
 
 @app.route("/recommend", methods=['POST'])
 def recommendation():
@@ -224,4 +153,5 @@ def recommendation():
                 , rating_2 = recommend_list[2]['rating']
                 )
 if __name__ == "__main__":
-    app.run(debug = False, host='0.0.0.0')
+    app.run(debug = False)
+    #, host='0.0.0.0'
